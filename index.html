@@ -404,6 +404,14 @@
     #deskEmpty{display:none}
     body.nochat #deskEmpty{display:flex!important;position:absolute;inset-inline:var(--side) 0;top:0;bottom:0;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:var(--muted);font-size:clamp(14px,1.2vw,18px);z-index:2;pointer-events:none}
   }
+  #userSearchWrap{position:absolute;top:14px;inset-inline:14px;z-index:6}
+  #userSearch{width:100%;padding:11px 14px}
+  @media (min-width:900px){
+    #app{grid-template-rows:auto 1fr!important}
+    #tabs{position:absolute!important;bottom:0;inset-inline:0 auto;width:var(--side)!important;grid-row:auto!important;grid-column:auto!important;z-index:8}
+    #userSearchWrap{top:12px;inset-inline:12px auto;width:calc(var(--side) - 24px)}
+    #view-chats{padding-top:70px!important}
+  }
   @keyframes rxPop{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.35);opacity:1}100%{transform:scale(1)}}
   .react.rx-new{animation:rxPop .5s cubic-bezier(.2,1.5,.4,1)}
   .neo{display:inline-block;font-size:1.2em;line-height:1;vertical-align:-.15em;filter:drop-shadow(0 0 2px var(--accent)) drop-shadow(0 0 6px rgba(0,240,255,.35));transition:transform .2s}
@@ -431,7 +439,7 @@
 
 <div id="deskEmpty"><span class="sp-dot"></span><span data-i18n="pickChat">Select a chat to start</span></div>
   <main>
-    <button id="aiBtn" class="ai-btn">✦ Neon AI</button>
+    <div id="userSearchWrap"><input class="text" id="userSearch" autocomplete="off" placeholder="Search by username"></div>
     <section id="view-chats" class="view"></section>
 
     <section id="view-chat" class="view hidden">
@@ -602,7 +610,7 @@
       botName:'I am Neon Bot, a test bot for this app ⚡', botQ:"Good question! I'm just a test bot for now 😄",
       botFile:'Got it ✅ thanks!', botDefault:'Got: "%s"',
       imageLabel:'🖼 Image', audioLabel:'🎤 Voice clip', videoLabel:'🎬 Video', fileLabel:'📄 File', noMessages:'No messages',
-      zoom:'Zoom', close:'Close', react:'React', dark:'Dark', light:'Light', showTour:'Show tour', skip:'Skip', next:'Next', done:'Start', archive:'Archive', unarchive:'Unarchive', archived:'Archived', archiveTitle:'Archived chats', backToChats:'Back', zoom:'Zoom', close:'Close', react:'React', dark:'Dark', light:'Light', showTour:'Show tour', skip:'Skip', next:'Next', done:'Start', archive:'Archive', unarchive:'Unarchive', archived:'Archived', archiveTitle:'Archived chats', backToChats:'Back', draft:'Draft:', nightAuto:'Auto', nightOn:'On', nightOff:'Off', replyReminder:"You haven't replied yet", soundUpload:'Upload', bio:'Bio', bioPh:'Write something about you', bioAll:'All', logout:'Log out', pickChat:'Select a chat to start', bioWord:'Word', bioChar:'Letter', bioHint:'Tap text to color it', storage:'Storage', mediaUsed:'Media size', clearMedia:'Clear media', noMedia:'No media yet', deviceUsed:'Device storage', exportPdf:'Export as PDF', exportFail:"Couldn't open export", select:'Select', mute:'Mute', unmute:'Unmute', muted:'Muted', unmuted:'Notifications on', messagesWord:'messages', me:'Me',
+      zoom:'Zoom', close:'Close', react:'React', dark:'Dark', light:'Light', showTour:'Show tour', skip:'Skip', next:'Next', done:'Start', archive:'Archive', unarchive:'Unarchive', archived:'Archived', archiveTitle:'Archived chats', backToChats:'Back', zoom:'Zoom', close:'Close', react:'React', dark:'Dark', light:'Light', showTour:'Show tour', skip:'Skip', next:'Next', done:'Start', archive:'Archive', unarchive:'Unarchive', archived:'Archived', archiveTitle:'Archived chats', backToChats:'Back', draft:'Draft:', nightAuto:'Auto', nightOn:'On', nightOff:'Off', replyReminder:"You haven't replied yet", soundUpload:'Upload', bio:'Bio', bioPh:'Write something about you', bioAll:'All', logout:'Log out', pickChat:'Select a chat to start', noResults:'No users found', startChat:'Start a chat', bioWord:'Word', bioChar:'Letter', bioHint:'Tap text to color it', storage:'Storage', mediaUsed:'Media size', clearMedia:'Clear media', noMedia:'No media yet', deviceUsed:'Device storage', exportPdf:'Export as PDF', exportFail:"Couldn't open export", select:'Select', mute:'Mute', unmute:'Unmute', muted:'Muted', unmuted:'Notifications on', messagesWord:'messages', me:'Me',
     },
     ar: {
       appName:'Neon Chat', chats:'المحادثات', settings:'الإعدادات', profile:'البروفايل', newChat:'محادثة جديدة', back:'رجوع',
@@ -625,7 +633,7 @@
       botName:'أنا Neon Bot، بوت تجريبي للتطبيق ⚡', botQ:'سؤال حلو! أنا بوت تجريبي بس، بس بتعلم 😄',
       botFile:'وصلني ✅ شكراً!', botDefault:'استلمت: "%s"',
       imageLabel:'🖼 صورة', audioLabel:'🎤 مقطع صوتي', videoLabel:'🎬 فيديو', fileLabel:'📄 ملف', noMessages:'لا توجد رسائل',
-      zoom:'تكبير', close:'إغلاق', react:'تفاعل', dark:'داكن', light:'فاتح', showTour:'عرض الشرح', skip:'تخطي', next:'التالي', done:'ابدأ', archive:'أرشفة', unarchive:'إلغاء الأرشفة', archived:'الأرشيف', archiveTitle:'المحادثات المؤرشفة', backToChats:'رجوع', draft:'مسودة:', nightAuto:'تلقائي', nightOn:'تشغيل', nightOff:'إيقاف', replyReminder:'ما رديت على الرسالة بعد', soundUpload:'رفع صوت', bio:'نبذة', bioPh:'اكتب شي عنك', bioAll:'الكل', logout:'تسجيل الخروج', pickChat:'اختار محادثة عشان تبلش', bioWord:'كلمة', bioChar:'حرف', bioHint:'اضغط على الكلام عشان تلونه', storage:'المساحة', mediaUsed:'حجم الوسائط', clearMedia:'امسح الوسائط', noMedia:'ما في وسائط بعد', deviceUsed:'مساحة الجهاز', exportPdf:'تصدير كـ PDF', exportFail:'ما قدرت أفتح التصدير', select:'تحديد', mute:'كتم الإشعارات', unmute:'تشغيل الإشعارات', muted:'تم كتم المحادثة', unmuted:'تم تشغيل الإشعارات', messagesWord:'رسايل', me:'أنا',
+      zoom:'تكبير', close:'إغلاق', react:'تفاعل', dark:'داكن', light:'فاتح', showTour:'عرض الشرح', skip:'تخطي', next:'التالي', done:'ابدأ', archive:'أرشفة', unarchive:'إلغاء الأرشفة', archived:'الأرشيف', archiveTitle:'المحادثات المؤرشفة', backToChats:'رجوع', draft:'مسودة:', nightAuto:'تلقائي', nightOn:'تشغيل', nightOff:'إيقاف', replyReminder:'ما رديت على الرسالة بعد', soundUpload:'رفع صوت', bio:'نبذة', bioPh:'اكتب شي عنك', bioAll:'الكل', logout:'تسجيل الخروج', pickChat:'اختار محادثة عشان تبلش', noResults:'ما لقيت شي', startChat:'ابدأ محادثة', bioWord:'كلمة', bioChar:'حرف', bioHint:'اضغط على الكلام عشان تلونه', storage:'المساحة', mediaUsed:'حجم الوسائط', clearMedia:'امسح الوسائط', noMedia:'ما في وسائط بعد', deviceUsed:'مساحة الجهاز', exportPdf:'تصدير كـ PDF', exportFail:'ما قدرت أفتح التصدير', select:'تحديد', mute:'كتم الإشعارات', unmute:'تشغيل الإشعارات', muted:'تم كتم المحادثة', unmuted:'تم تشغيل الإشعارات', messagesWord:'رسايل', me:'أنا',
     }
   };
 
@@ -785,7 +793,7 @@
     $('#tabs').classList.toggle('hidden', !tabsOn);
     $('#newBtn').classList.toggle('hidden', !tabsOn || !listy || archiveView); $('#gearBtn').classList.toggle('hidden', !listy || archiveView);
     $('#archTop').classList.toggle('hidden', !listy);
-    $('#topBack').classList.toggle('hidden', listy && !archiveView); document.body.classList.toggle('nochat', !currentChat && name === 'chats'); $('#aiBtn').classList.toggle('hidden', name !== 'chats' || archiveView); $('#topbar').classList.toggle('withback', !$('#topBack').classList.contains('hidden')); $('#topbar').classList.toggle('hidden', name === 'chat' && !wide);
+    $('#topBack').classList.toggle('hidden', listy && !archiveView); document.body.classList.toggle('nochat', !currentChat && name === 'chats'); $('#userSearchWrap').classList.toggle('hidden', name !== 'chats' || archiveView); $('#topbar').classList.toggle('withback', !$('#topBack').classList.contains('hidden')); $('#topbar').classList.toggle('hidden', name === 'chat' && !wide);
     document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
     $('#title').textContent = name === 'chat' ? '' : (name === 'chats' ? (archiveView ? t('archiveTitle') : t('appName')) : t(name));
     if(name === 'chats') renderChats();
@@ -811,6 +819,7 @@
 
   function renderChats(){
     const list = $('#view-chats');
+    if(searchTerm){ renderSearch(); return; }
     const chats = [...state.chats].filter(c => c.id !== 'ai' && (archiveView ? !!c.archived : !c.archived)).sort((a,b) => (b.pinned - a.pinned) ||
       (state.settings.sort === 'new' ? b.updated - a.updated : a.title.localeCompare(b.title)));
     if(!chats.length){ list.innerHTML = `<div class="empty">${t('noChats')}</div>`; return; }
@@ -991,7 +1000,7 @@
     save(); appendMsg(msg); scrollBottom(); pushMsg(currentChat, msg);
   }
 
-  function botReact(userMsg){ const chat = currentChat; if(!chat) return;
+  function botReact(userMsg){ return;
     if(!state.settings.botReply) return;
     const typing = $('#typing');
     typing.classList.remove('hidden');
@@ -1626,7 +1635,7 @@
   let archiveView = false;
   $('#archTop').onclick = () => { archiveView = !archiveView; showView('chats'); };
   $('#topBack').onclick = () => { archiveView = false; showView('chats'); };
-  $('#aiBtn').onclick = () => openChat('ai');
+  
 
   const ONB = [
     {en:['Welcome to Neon Chat','Send messages, photos and videos in a neon style.'], ar:['أهلاً بك في Neon Chat','أرسل رسائل وصور وفيديوهات بستايل النيون.'], vis:'<div class="v-bub theirs">Hey 😊</div><div class="v-bub mine">Hi! 👋</div>'},
@@ -2024,14 +2033,14 @@
     const u = await currentUser(); if(!u) return;
     await sb.from('chats').upsert({ id: c.id, owner: u.id, title: c.title });
   }
-  async function pushMsg(chat, m){ return;
+  async function pushMsg(chat, m){
     if(!sb || !chat || !UUID_RE.test(chat.id) || !UUID_RE.test(m.id)) return;
     if(m.from !== 'me' || m.type !== 'text') return;
     const u = await currentUser(); if(!u) return;
-    await sb.from('chats').upsert({ id: chat.id, owner: u.id, title: chat.title });
+    
     await sb.from('messages').upsert({ id: m.id, chat_id: chat.id, sender: u.id, body: m.text });
   }
-  async function loadRemote(){ return;
+  async function loadRemote(){
     const u = await currentUser(); if(!u) return;
     const { data: rows } = await sb.from('chats').select('*').order('created_at');
     const { data: msgs } = await sb.from('messages').select('*').order('created_at');
@@ -2054,6 +2063,49 @@
     if(currentView === 'chats') renderChats();
     if(currentChat) renderMessages();
   }
+
+  let searchTerm = '', searchResults = [], searchTimer = null;
+  state.chats = state.chats.filter(c => c.id !== 'bot' && c.id !== 'ai');
+  save();
+  function renderSearch(){
+    const list = $('#view-chats');
+    if(!searchResults.length){ list.innerHTML = `<div class="empty">${t('noResults')}</div>`; return; }
+    list.innerHTML = searchResults.map(p => `
+      <div class="chat-item" data-user="${p.id}" data-name="${esc(p.username)}">
+        <div class="avatar">${esc(p.username[0].toUpperCase())}</div>
+        <div class="chat-info"><b>@${esc(p.username)}</b><small>${t('startChat')}</small></div>
+      </div>`).join('');
+  }
+  $('#userSearch').addEventListener('input', e => {
+    clearTimeout(searchTimer);
+    searchTerm = e.target.value.trim().replace(/^@/, '').toLowerCase();
+    if(!searchTerm){ searchResults = []; renderChats(); return; }
+    searchTimer = setTimeout(async () => {
+      if(!sb) return;
+      const me = await currentUser();
+      const { data } = await sb.from('profiles').select('id,username').ilike('username', `%${searchTerm}%`).limit(20);
+      searchResults = (data || []).filter(p => !me || p.id !== me.id);
+      renderChats();
+    }, 300);
+  });
+  $('#view-chats').addEventListener('click', e => {
+    const r = e.target.closest('[data-user]'); if(!r) return;
+    e.stopPropagation(); e.preventDefault();
+    startDM(r.dataset.user, r.dataset.name);
+  }, true);
+  async function startDM(userId, name){
+    const u = await currentUser(); if(!u || !sb) return;
+    const id = newUuid();
+    const { error } = await sb.from('chats').insert({ id, owner: u.id, title: name });
+    if(error){ toast(error.message); return; }
+    await sb.from('chat_members').insert([{ chat_id: id, user_id: u.id }, { chat_id: id, user_id: userId }]);
+    state.chats.unshift({ id, title: name, avatar: '', pinned: false, created: Date.now(), updated: Date.now(), messages: [] });
+    save();
+    searchTerm = ''; searchResults = [];
+    $('#userSearch').value = '';
+    openChat(id);
+  }
+  $('#newBtn').onclick = () => $('#userSearch').focus();
 
   const ICONS = {
     reply:`<svg class="ico" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v3"/></svg>`,
