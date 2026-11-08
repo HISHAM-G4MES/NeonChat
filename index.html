@@ -373,7 +373,11 @@
   #auth:not(.hidden){display:flex}
     /* ===== Desktop layout (clean) ===== */
   @media (min-width:900px){
-    #topbar{position:absolute;top:0;inset-inline:0 auto;width:340px;height:auto;z-index:8;flex-wrap:wrap;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);border-inline-end:1px solid var(--line);background:var(--glass)}
+    #topbar{position:absolute;top:0;inset-inline:0 auto;width:340px;height:72px;z-index:8;flex-wrap:nowrap;gap:8px;padding:0 14px;align-items:center;border-bottom:1px solid var(--line);border-inline-end:1px solid var(--line);background:var(--glass)}
+    #topbar h1{display:none}
+    #deskEmpty{display:none}
+    body.nochat #deskEmpty{display:flex!important;position:absolute;inset-inline:340px 0;top:0;bottom:0;align-items:center;justify-content:center;flex-direction:column;gap:14px;color:var(--muted);font-size:16px;z-index:2;pointer-events:none}
+    body.nochat #deskEmpty .sp-dot{width:16px;height:16px}
     #topbar h1{font-size:20px}
     #topbar.withback{padding-inline-start:14px}
     #topBack{position:static;transform:none;width:40px!important;height:40px!important}
@@ -411,6 +415,7 @@
     <div style="display:flex;gap:8px"><button id="archTop" class="icon c-purple" title="Archive">📦</button><button id="gearBtn" class="icon c-purple" title="Settings"><svg class="ico" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg><span data-i18n="settings">Settings</span></button><button id="newBtn" class="icon c-cyan" title="New chat">+</button></div>
   </header>
 
+<div id="deskEmpty"><span class="sp-dot"></span><span data-i18n="pickChat">Select a chat to start</span></div>
   <main>
     <button id="aiBtn" class="ai-btn">✦ Neon AI</button>
     <section id="view-chats" class="view"></section>
@@ -583,7 +588,7 @@
       botName:'I am Neon Bot, a test bot for this app ⚡', botQ:"Good question! I'm just a test bot for now 😄",
       botFile:'Got it ✅ thanks!', botDefault:'Got: "%s"',
       imageLabel:'🖼 Image', audioLabel:'🎤 Voice clip', videoLabel:'🎬 Video', fileLabel:'📄 File', noMessages:'No messages',
-      zoom:'Zoom', close:'Close', react:'React', dark:'Dark', light:'Light', showTour:'Show tour', skip:'Skip', next:'Next', done:'Start', archive:'Archive', unarchive:'Unarchive', archived:'Archived', archiveTitle:'Archived chats', backToChats:'Back', zoom:'Zoom', close:'Close', react:'React', dark:'Dark', light:'Light', showTour:'Show tour', skip:'Skip', next:'Next', done:'Start', archive:'Archive', unarchive:'Unarchive', archived:'Archived', archiveTitle:'Archived chats', backToChats:'Back', draft:'Draft:', nightAuto:'Auto', nightOn:'On', nightOff:'Off', replyReminder:"You haven't replied yet", soundUpload:'Upload', bio:'Bio', bioPh:'Write something about you', bioAll:'All', logout:'Log out', bioWord:'Word', bioChar:'Letter', bioHint:'Tap text to color it', storage:'Storage', mediaUsed:'Media size', clearMedia:'Clear media', noMedia:'No media yet', deviceUsed:'Device storage', exportPdf:'Export as PDF', exportFail:"Couldn't open export", select:'Select', mute:'Mute', unmute:'Unmute', muted:'Muted', unmuted:'Notifications on', messagesWord:'messages', me:'Me',
+      zoom:'Zoom', close:'Close', react:'React', dark:'Dark', light:'Light', showTour:'Show tour', skip:'Skip', next:'Next', done:'Start', archive:'Archive', unarchive:'Unarchive', archived:'Archived', archiveTitle:'Archived chats', backToChats:'Back', zoom:'Zoom', close:'Close', react:'React', dark:'Dark', light:'Light', showTour:'Show tour', skip:'Skip', next:'Next', done:'Start', archive:'Archive', unarchive:'Unarchive', archived:'Archived', archiveTitle:'Archived chats', backToChats:'Back', draft:'Draft:', nightAuto:'Auto', nightOn:'On', nightOff:'Off', replyReminder:"You haven't replied yet", soundUpload:'Upload', bio:'Bio', bioPh:'Write something about you', bioAll:'All', logout:'Log out', pickChat:'Select a chat to start', bioWord:'Word', bioChar:'Letter', bioHint:'Tap text to color it', storage:'Storage', mediaUsed:'Media size', clearMedia:'Clear media', noMedia:'No media yet', deviceUsed:'Device storage', exportPdf:'Export as PDF', exportFail:"Couldn't open export", select:'Select', mute:'Mute', unmute:'Unmute', muted:'Muted', unmuted:'Notifications on', messagesWord:'messages', me:'Me',
     },
     ar: {
       appName:'Neon Chat', chats:'المحادثات', settings:'الإعدادات', profile:'البروفايل', newChat:'محادثة جديدة', back:'رجوع',
@@ -606,7 +611,7 @@
       botName:'أنا Neon Bot، بوت تجريبي للتطبيق ⚡', botQ:'سؤال حلو! أنا بوت تجريبي بس، بس بتعلم 😄',
       botFile:'وصلني ✅ شكراً!', botDefault:'استلمت: "%s"',
       imageLabel:'🖼 صورة', audioLabel:'🎤 مقطع صوتي', videoLabel:'🎬 فيديو', fileLabel:'📄 ملف', noMessages:'لا توجد رسائل',
-      zoom:'تكبير', close:'إغلاق', react:'تفاعل', dark:'داكن', light:'فاتح', showTour:'عرض الشرح', skip:'تخطي', next:'التالي', done:'ابدأ', archive:'أرشفة', unarchive:'إلغاء الأرشفة', archived:'الأرشيف', archiveTitle:'المحادثات المؤرشفة', backToChats:'رجوع', draft:'مسودة:', nightAuto:'تلقائي', nightOn:'تشغيل', nightOff:'إيقاف', replyReminder:'ما رديت على الرسالة بعد', soundUpload:'رفع صوت', bio:'نبذة', bioPh:'اكتب شي عنك', bioAll:'الكل', logout:'تسجيل الخروج', bioWord:'كلمة', bioChar:'حرف', bioHint:'اضغط على الكلام عشان تلونه', storage:'المساحة', mediaUsed:'حجم الوسائط', clearMedia:'امسح الوسائط', noMedia:'ما في وسائط بعد', deviceUsed:'مساحة الجهاز', exportPdf:'تصدير كـ PDF', exportFail:'ما قدرت أفتح التصدير', select:'تحديد', mute:'كتم الإشعارات', unmute:'تشغيل الإشعارات', muted:'تم كتم المحادثة', unmuted:'تم تشغيل الإشعارات', messagesWord:'رسايل', me:'أنا',
+      zoom:'تكبير', close:'إغلاق', react:'تفاعل', dark:'داكن', light:'فاتح', showTour:'عرض الشرح', skip:'تخطي', next:'التالي', done:'ابدأ', archive:'أرشفة', unarchive:'إلغاء الأرشفة', archived:'الأرشيف', archiveTitle:'المحادثات المؤرشفة', backToChats:'رجوع', draft:'مسودة:', nightAuto:'تلقائي', nightOn:'تشغيل', nightOff:'إيقاف', replyReminder:'ما رديت على الرسالة بعد', soundUpload:'رفع صوت', bio:'نبذة', bioPh:'اكتب شي عنك', bioAll:'الكل', logout:'تسجيل الخروج', pickChat:'اختار محادثة عشان تبلش', bioWord:'كلمة', bioChar:'حرف', bioHint:'اضغط على الكلام عشان تلونه', storage:'المساحة', mediaUsed:'حجم الوسائط', clearMedia:'امسح الوسائط', noMedia:'ما في وسائط بعد', deviceUsed:'مساحة الجهاز', exportPdf:'تصدير كـ PDF', exportFail:'ما قدرت أفتح التصدير', select:'تحديد', mute:'كتم الإشعارات', unmute:'تشغيل الإشعارات', muted:'تم كتم المحادثة', unmuted:'تم تشغيل الإشعارات', messagesWord:'رسايل', me:'أنا',
     }
   };
 
@@ -766,7 +771,7 @@
     $('#tabs').classList.toggle('hidden', !tabsOn);
     $('#newBtn').classList.toggle('hidden', !tabsOn || !listy || archiveView); $('#gearBtn').classList.toggle('hidden', !listy || archiveView);
     $('#archTop').classList.toggle('hidden', !listy);
-    $('#topBack').classList.toggle('hidden', listy && !archiveView); $('#aiBtn').classList.toggle('hidden', name !== 'chats' || archiveView); $('#topbar').classList.toggle('withback', !$('#topBack').classList.contains('hidden')); $('#topbar').classList.toggle('hidden', name === 'chat' && !wide);
+    $('#topBack').classList.toggle('hidden', listy && !archiveView); document.body.classList.toggle('nochat', !currentChat && name === 'chats'); $('#aiBtn').classList.toggle('hidden', name !== 'chats' || archiveView); $('#topbar').classList.toggle('withback', !$('#topBack').classList.contains('hidden')); $('#topbar').classList.toggle('hidden', name === 'chat' && !wide);
     document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
     $('#title').textContent = name === 'chat' ? '' : (name === 'chats' ? (archiveView ? t('archiveTitle') : t('appName')) : t(name));
     if(name === 'chats') renderChats();
