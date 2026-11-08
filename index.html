@@ -439,7 +439,7 @@
 
 <div id="deskEmpty"><span class="sp-dot"></span><span data-i18n="pickChat">Select a chat to start</span></div>
   <main>
-    <div id="userSearchWrap"><input class="text" id="userSearch" autocomplete="off" placeholder="Search by username"></div>
+    <div id="userSearchWrap" class="hidden"><input class="text" id="userSearch" autocomplete="off" placeholder="Search by username"></div>
     <section id="view-chats" class="view"></section>
 
     <section id="view-chat" class="view hidden">
@@ -562,7 +562,7 @@
 </div>
 
 <div id="splash"><span class="sp-dot"></span><span class="sp-dot"></span><span class="sp-dot"></span><span class="sp-dot"></span></div>
-<div id="auth" class="hidden"><div class="onb-card"><h3>Neon Chat</h3><p id="authMsg" style="color:var(--muted)"></p><input class="text" id="authUser" placeholder="Username (a-z, 0-9, _)" style="margin-bottom:8px"><input class="text" id="authEmail" type="email" placeholder="Email" style="margin-bottom:8px"><input class="text" id="authPass" type="password" placeholder="Password" style="margin-bottom:12px"><div class="onb-actions"><button id="authIn" class="c-cyan">Sign in</button><button id="authUp" class="c-pink">Sign up</button></div>
+<div id="auth" class="hidden"><div class="onb-card"><h3>Neon Chat</h3><p id="authMsg" style="color:var(--muted)"></p><input class="text" id="authUser" placeholder="Username (a-z, 0-9, _)" style="margin-bottom:8px"><input class="text" id="authEmail" type="text" placeholder="Email or username" style="margin-bottom:8px"><input class="text" id="authPass" type="password" placeholder="Password" style="margin-bottom:12px"><div class="onb-actions"><button id="authIn" class="c-cyan">Sign in</button><button id="authUp" class="c-pink">Sign up</button></div>
 </div></div>
 <div id="onb" class="hidden"><div class="onb-card"><div class="onb-stage" id="onbStage"></div><h3 id="onbTitle"></h3><p id="onbText"></p><div class="onb-dots" id="onbDots"></div><div class="onb-prog"><i id="onbBar"></i></div><div class="onb-actions"><button id="onbSkip" class="c-red"></button><button id="onbNext" class="c-cyan"></button></div></div></div>
 <div id="modalBg"></div>
@@ -793,7 +793,7 @@
     $('#tabs').classList.toggle('hidden', !tabsOn);
     $('#newBtn').classList.toggle('hidden', !tabsOn || !listy || archiveView); $('#gearBtn').classList.toggle('hidden', !listy || archiveView);
     $('#archTop').classList.toggle('hidden', !listy);
-    $('#topBack').classList.toggle('hidden', listy && !archiveView); document.body.classList.toggle('nochat', !currentChat && name === 'chats'); $('#userSearchWrap').classList.toggle('hidden', name !== 'chats' || archiveView); $('#topbar').classList.toggle('withback', !$('#topBack').classList.contains('hidden')); $('#topbar').classList.toggle('hidden', name === 'chat' && !wide);
+    $('#topBack').classList.toggle('hidden', listy && !archiveView); document.body.classList.toggle('nochat', !currentChat && name === 'chats'); $('#userSearchWrap').classList.toggle('hidden', name !== 'chats' || archiveView || !searchOpen); $('#topbar').classList.toggle('withback', !$('#topBack').classList.contains('hidden')); $('#topbar').classList.toggle('hidden', name === 'chat' && !wide);
     document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
     $('#title').textContent = name === 'chat' ? '' : (name === 'chats' ? (archiveView ? t('archiveTitle') : t('appName')) : t(name));
     if(name === 'chats') renderChats();
@@ -1410,7 +1410,7 @@
     const av = $('#pAvatar');
     if(state.profile.avatar){ av.style.backgroundImage = `url(${state.profile.avatar})`; av.textContent = ''; }
     else { av.style.backgroundImage = ''; av.textContent = '👤'; }
-    $('#pUser').value = '@' + (state.profile.username || ''); $('#pName').value = state.profile.name || ''; $('#pBio').value = state.profile.bio || ''; bioStyle();
+    $('#pUser').value = '@' + (state.profile.username || ''); $('#pUser').disabled = !!state.profile.username; if(!state.profile.username) loadMyUsername(); $('#pName').value = state.profile.name || ''; $('#pBio').value = state.profile.bio || ''; bioStyle();
   }
   $('#pAvatar').onclick = () => $('#avatarIn').click();
   $('#pPick').onclick = () => $('#avatarIn').click();
@@ -1430,7 +1430,13 @@
     };
     img.src = URL.createObjectURL(f);
   };
-  $('#pSave').onclick = () => {
+  $('#pSave').onclick = async () => {
+    const un = $('#pUser').value.replace(/^@/, '').trim().toLowerCase();
+    if(!state.profile.username && un){
+      if(!/^[a-z0-9_]{3,20}$/.test(un)){ toast('3-20: a-z, 0-9, _'); return; }
+      const me = await currentUser();
+      if(me){ const { error } = await sb.from('profiles').upsert({ id: me.id, username: un }); if(error){ toast(error.message); return; } state.profile.username = un; }
+    }
     const name = $('#pName').value.trim();
     if(!name){ toast(t('enterNameFirst')); return; }
     state.profile.name = name; state.profile.bio = $('#pBio').value.trim(); save(); renderProfile(); toast(t('saved'));
@@ -1964,7 +1970,13 @@
       if(taken){ $('#authMsg').textContent = 'Username already taken'; return; }
     }
     $('#authMsg').textContent = '...';
-    const res = kind === 'up' ? await sb.auth.signUp({ email, password }) : await sb.auth.signInWithPassword({ email, password });
+    let loginEmail = email;
+    if(kind === 'in' && !email.includes('@')){
+      const { data: em, error: rpcErr } = await sb.rpc('email_for_username', { uname: email.replace(/^@/, '').toLowerCase() });
+      if(rpcErr || !em){ $('#authMsg').textContent = 'Username not found'; return; }
+      loginEmail = em;
+    }
+    const res = kind === 'up' ? await sb.auth.signUp({ email, password }) : await sb.auth.signInWithPassword({ email: loginEmail, password });
     if(res.error){ $('#authMsg').textContent = res.error.message; return; }
     if(kind === 'up' && !res.data.session){ $('#authMsg').textContent = 'Check your email to confirm your account'; return; }
     state.profile.email = email;
@@ -2040,14 +2052,14 @@
     
     await sb.from('messages').upsert({ id: m.id, chat_id: chat.id, sender: u.id, body: m.text });
   }
-  async function loadRemote(){
+  async function loadRemote(){ await fixTitles();
     const u = await currentUser(); if(!u) return;
     const { data: rows } = await sb.from('chats').select('*').order('created_at');
     const { data: msgs } = await sb.from('messages').select('*').order('created_at');
     (rows || []).forEach(r => {
       let c = state.chats.find(x => x.id === r.id);
       if(!c){
-        c = { id: r.id, title: r.title || 'Chat', avatar: '', pinned: false, created: Date.parse(r.created_at), updated: Date.parse(r.created_at), messages: [] };
+        c = { id: r.id, title: r.title || 'Chat', owner: r.owner, avatar: '', pinned: false, created: Date.parse(r.created_at), updated: Date.parse(r.created_at), messages: [] };
         state.chats.push(c);
       }
       c.title = r.title || c.title;
@@ -2064,6 +2076,21 @@
     if(currentChat) renderMessages();
   }
 
+  let searchOpen = false;
+  async function fixTitles(){
+    if(!sb) return;
+    const me = await currentUser(); if(!me) return;
+    const ids = [...new Set(state.chats.filter(c => c.owner && c.owner !== me.id).map(c => c.owner))];
+    if(!ids.length) return;
+    const { data } = await sb.from('profiles').select('id,username').in('id', ids);
+    (data || []).forEach(p => state.chats.forEach(c => { if(c.owner === p.id) c.title = p.username; }));
+    save();
+  }
+  async function loadMyUsername(){
+    const me = await currentUser(); if(!me || !sb) return;
+    const { data } = await sb.from('profiles').select('username').eq('id', me.id).maybeSingle();
+    if(data){ state.profile.username = data.username; save(); renderProfile(); }
+  }
   let searchTerm = '', searchResults = [], searchTimer = null;
   state.chats = state.chats.filter(c => c.id !== 'bot' && c.id !== 'ai');
   save();
@@ -2099,13 +2126,13 @@
     const { error } = await sb.from('chats').insert({ id, owner: u.id, title: name });
     if(error){ toast(error.message); return; }
     await sb.from('chat_members').insert([{ chat_id: id, user_id: u.id }, { chat_id: id, user_id: userId }]);
-    state.chats.unshift({ id, title: name, avatar: '', pinned: false, created: Date.now(), updated: Date.now(), messages: [] });
+    state.chats.unshift({ id, title: name, owner: u.id, avatar: '', pinned: false, created: Date.now(), updated: Date.now(), messages: [] });
     save();
     searchTerm = ''; searchResults = [];
     $('#userSearch').value = '';
     openChat(id);
   }
-  $('#newBtn').onclick = () => $('#userSearch').focus();
+  $('#newBtn').onclick = () => { searchOpen = !searchOpen; if(!searchOpen){ searchTerm = ''; searchResults = []; $('#userSearch').value = ''; } showView('chats'); if(searchOpen) $('#userSearch').focus(); };
 
   const ICONS = {
     reply:`<svg class="ico" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v3"/></svg>`,
