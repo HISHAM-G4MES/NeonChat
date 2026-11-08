@@ -412,6 +412,7 @@
     #userSearchWrap{top:12px;inset-inline:12px auto;width:calc(var(--side) - 24px)}
     #view-chats{padding-top:70px!important}
   }
+    .unread-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0}
   @keyframes rxPop{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.35);opacity:1}100%{transform:scale(1)}}
   .react.rx-new{animation:rxPop .5s cubic-bezier(.2,1.5,.4,1)}
   .neo{display:inline-block;font-size:1.2em;line-height:1;vertical-align:-.15em;filter:drop-shadow(0 0 2px var(--accent)) drop-shadow(0 0 6px rgba(0,240,255,.35));transition:transform .2s}
@@ -829,7 +830,7 @@
       <div class="chat-item ${c.pinned?'pinned':''}" data-id="${c.id}">
         <div class="avatar" style="${avatarStyle(c)}">${avatarInner(c)}</div>
         <div class="chat-info"><b>${c.muted?'🔕 ':''}${c.pinned?'📌 ':''}${esc(c.title)}</b><small>${esc(lastMsg(c))}</small></div>
-        <span class="ts">${last ? timeStr(last.ts) : ''}</span>
+        ${c.unread ? '<span class="unread-dot"></span>' : ''}<span class="ts">${last ? timeStr(last.ts) : ''}</span>
       </div>`;
     }).join('');
   }
@@ -858,7 +859,7 @@
     replyTarget = null; updateReplyBar();
     showView('chat');
     renderMessages();
-    openedAt = Date.now(); scrollBottom(); requestAnimationFrame(scrollBottom); setTimeout(scrollBottom, 150); $('#msgInput').value = currentChat.draft || ''; applyBg();
+    openedAt = Date.now(); scrollBottom(); requestAnimationFrame(scrollBottom); setTimeout(scrollBottom, 150); $('#msgInput').value = currentChat.draft || ''; markRead(currentChat); applyBg();
   }
   function updateHead(){
     $('#chatName').textContent = currentChat.title;
@@ -896,7 +897,7 @@
     else if(m.type === 'file') body = `<a class="file" ${attr('a')} download="${esc(m.name)}">📄 ${esc(m.name)}<small>${m.size ? fmtSize(m.size) : ''}</small></a>`;
     const quote = m.replyTo ? `<div class="quote">${esc(m.replyTo)}</div>` : '';
     return `<div class="row ${mine?'mine':'theirs'}">
-      <div class="bubble" data-id="${m.id}">${quote}${body}${linkCard(m)}${m.reaction ? `<span class="react">${m.reaction}</span>` : ''}<span class="meta">${m.pinned?'📌 ':''}${timeStr(m.ts)}${m.edited?esc(t('editedTag')):''}${m.from === 'me' ? (m.read ? ' ✓✓' : ' ✓') : ''}</span></div></div>`;
+      <div class="bubble" data-id="${m.id}">${quote}${body}${linkCard(m)}${m.reaction ? `<span class="react">${m.reaction}</span>` : ''}<span class="meta">${m.pinned?'📌 ':''}${timeStr(m.ts)}${m.edited?esc(t('editedTag')):''}${m.from === 'me' ? (m.seen ? ' <span style="color:var(--green)">✓✓</span>' : ' ✓') : ''}</span></div></div>`;
   }
 
   function renderMessages(){
@@ -2052,7 +2053,7 @@
     
     await sb.from('messages').upsert({ id: m.id, chat_id: chat.id, sender: u.id, body: m.text });
   }
-  async function loadRemote(){ await fixTitles();
+  async function loadRemote(){ await fixTitles(); startRealtime();
     const u = await currentUser(); if(!u) return;
     const { data: rows } = await sb.from('chats').select('*').order('created_at');
     const { data: msgs } = await sb.from('messages').select('*').order('created_at');
@@ -2068,7 +2069,7 @@
       const c = state.chats.find(x => x.id === r.chat_id);
       if(!c || c.messages.some(m => m.id === r.id)) return;
       const ts = Date.parse(r.created_at);
-      c.messages.push({ id: r.id, from: r.sender === u.id ? 'me' : 'bot', type: 'text', text: r.body, ts });
+      c.messages.push({ id: r.id, from: r.sender === u.id ? 'me' : 'bot', type: 'text', text: r.body, ts, seen: r.seen });
       c.updated = Math.max(c.updated || 0, ts);
     });
     save();
@@ -2133,6 +2134,46 @@
     openChat(id);
   }
   $('#newBtn').onclick = () => { searchOpen = !searchOpen; if(!searchOpen){ searchTerm = ''; searchResults = []; $('#userSearch').value = ''; } showView('chats'); if(searchOpen) $('#userSearch').focus(); };
+
+  let rtStarted = false, myId = null;
+  function startRealtime(){
+    if(rtStarted || !sb) return;
+    rtStarted = true;
+    currentUser().then(me => {
+      if(!me) return;
+      myId = me.id;
+      sb.channel('neon-msgs')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => handleIncoming(p.new))
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, p => handleSeen(p.new))
+        .subscribe();
+    });
+  }
+  async function handleIncoming(r){
+    if(!myId){ const me = await currentUser(); myId = me && me.id; }
+    if(r.sender === myId) return;
+    const c = state.chats.find(x => x.id === r.chat_id);
+    if(!c){ loadRemote(); return; }
+    if(c.messages.some(m => m.id === r.id)) return;
+    c.messages.push({ id: r.id, from: 'bot', type: 'text', text: r.body, ts: Date.parse(r.created_at) || Date.now(), seen: false });
+    c.updated = Date.now();
+    const viewing = currentChat && currentChat.id === c.id && currentView === 'chat' && !document.hidden;
+    if(viewing){ save(); renderMessages(); scrollBottom(); markRead(c); }
+    else { c.unread = (c.unread || 0) + 1; save(); playSound(); if(currentView === 'chats') renderChats(); }
+  }
+  function handleSeen(r){
+    const c = state.chats.find(x => x.id === r.chat_id); if(!c) return;
+    const m = c.messages.find(x => x.id === r.id); if(!m) return;
+    m.seen = r.seen; save();
+    if(currentChat && currentChat.id === c.id) renderMessages();
+  }
+  async function markRead(c){
+    if(!sb) return;
+    const me = myId || ((await currentUser()) || {}).id;
+    if(!me) return;
+    c.unread = 0; save();
+    await sb.from('messages').update({ seen: true }).eq('chat_id', c.id).neq('sender', me).eq('seen', false);
+    if(currentView === 'chats') renderChats();
+  }
 
   const ICONS = {
     reply:`<svg class="ico" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 6 6v3"/></svg>`,
